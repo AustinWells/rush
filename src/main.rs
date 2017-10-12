@@ -1,9 +1,18 @@
 extern crate rustyline;
 extern crate regex;
 
+pub mod parse;
+use parse::*;
+
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use regex::Regex;
+
+fn process_line(regex: &Regex, line: String) {
+    let match_iter = regex.find_iter(line.as_str());
+    let l: Vec<&str> = match_iter.map(|v| v.as_str()).collect();
+    println!("{:?}", l);
+} 
 
 fn main() {
     let mut rl = Editor::<()>::new();
@@ -17,9 +26,7 @@ fn main() {
         match readline {
             Ok(line) => {
                 rl.add_history_entry(&line);
-                let match_iter = regex.find_iter(line.as_str());
-                let l: Vec<&str> = match_iter.map(|v| v.as_str()).collect();
-                println!("{:?}", l);
+                process_line(&regex, line);
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CC");
