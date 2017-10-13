@@ -3,14 +3,20 @@ use std::str::Chars;
 
 use parse::Token::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub enum ConType {
     Sequence,
     And,
     Or
 }
 
-#[derive(Debug, Copy, Clone)]
+impl Default for ConType {
+    fn default() -> ConType {
+        ConType::Sequence
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub enum Token {
     Identifier,
     FileIn,
@@ -31,22 +37,56 @@ pub enum Token {
 
 #[derive(Debug)]
 pub struct PipeLine {
-    argv: Vec<String>,
+    arg: Vec<String>,
     is_double_redirect: bool,
     next: Option<Box<PipeLine>>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ParsedLine {
     con_type: ConType,
-    input: File,
-    output: File,
+    input: Option<File>,
+    output: Option<File>,
+    is_doubled: bool,
     backgroud: bool,
-    pipeline: PipeLine,
+    pipeline: Option<PipeLine>,
     next: Option<Box<ParsedLine>>
 }
 
-pub fn get_token(line: &mut Chars) -> Token {
+impl ParsedLine {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
+pub fn parsed_line(line: String) -> ParsedLine {
+    let mut curline = ParsedLine::new();
+    let mut tok: Token;
+    let s = &mut line.chars();
+    let arg = &mut String::new();
+
+    curline.con_type = ConType::Sequence;
+    curline.input = None;
+    curline.output = None;
+    curline.is_doubled = false;
+    curline.backgroud = false;
+    curline.pipeline = None;
+    curline.next = None;
+
+    tok = get_token(s, arg);
+    while tok != EOL {
+        while tok < Semicolon {
+            println!("{:?}: {:?}", tok, arg);
+            tok = get_token(s, arg);
+        }
+        println!("new pipline");
+        tok = get_token(s, arg);
+    }
+
+    return curline;
+}
+
+pub fn get_token(line: &mut Chars, arg: &mut String) -> Token {
     let mut chr: Option<char> = line.next();
     while chr.is_some() && chr.unwrap().is_whitespace() {
         chr = line.next();
@@ -98,9 +138,12 @@ pub fn get_token(line: &mut Chars) -> Token {
                     Ampersand
                 }
                 _ => {
+                    let mut id = String::new();
                     while chr.is_some() && !chr.unwrap().is_whitespace() && "<>;&|".find(chr.unwrap()).is_none() {
+                        id.push(chr.unwrap());
                         chr = line.next();
                     }
+                    *arg = id;
                     Identifier
                 }
             }

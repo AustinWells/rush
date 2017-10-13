@@ -5,4 +5,3 @@ authors = ["Josh Wolfe <joshuafwolfe@gmail.com>"]
 
 [dependencies]
 rustyline = "1.0.0"
-regex = "0.2"
