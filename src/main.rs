@@ -34,5 +34,5 @@ fn main() {
             }
         }
     }
-    rl.save_history("/home/wolfe/.rsh.hist").unwrap();
+    rl.save_history("/~/.rsh.hist").unwrap();
 }
