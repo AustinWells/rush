@@ -9,7 +9,7 @@ use rustyline::Editor;
 fn main() {
     let mut rl = Editor::<()>::new();
 
-    if let Err(_) = rl.load_history("/home/wolfe/.rsh.hist") {
+    if let Err(_) = rl.load_history("~/.rsh.hist") {
         println!("No previous history");
     }
     loop {
@@ -34,5 +34,5 @@ fn main() {
             }
         }
     }
-    rl.save_history("/~/.rsh.hist").unwrap();
+    rl.save_history("~/.rsh.hist").unwrap();
 }
