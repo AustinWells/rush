@@ -6,27 +6,27 @@ use parse::*;
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
-use regex::Regex;
-
-fn process_line(regex: &Regex, line: String) {
-    let match_iter = regex.find_iter(line.as_str());
-    let l: Vec<&str> = match_iter.map(|v| v.as_str()).collect();
-    println!("{:?}", l);
-} 
 
 fn main() {
     let mut rl = Editor::<()>::new();
-    let regex = Regex::new(r#"(?:[^\s,""']|[""'](?:\\.|[^""])*[""'])+"#).unwrap();
 
     if let Err(_) = rl.load_history("/home/wolfe/.rsh.hist") {
         println!("No previous history");
     }
     loop {
         let readline = rl.readline("$ ");
+
         match readline {
             Ok(line) => {
                 rl.add_history_entry(&line);
-                process_line(&regex, line);
+
+                /* For testing purposes prints token stream to stdout */
+                let line_chars = &mut line.chars();
+                let mut tok = parse::get_token(line_chars);
+                while (tok as i32) != (Token::EOL as i32) {
+                    println!("{:?}", tok);
+                    tok = parse::get_token(line_chars);
+                }
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CC");
