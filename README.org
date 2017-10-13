@@ -1,2 +1,2 @@
-* *Ru*st *Sh*ll
-A shell written in rust
+* Rush - A Rust Shell
+
